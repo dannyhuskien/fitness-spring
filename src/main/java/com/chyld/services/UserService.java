@@ -24,7 +24,7 @@ public class UserService implements UserDetailsService {
         return repository.save(user);
     }
 
-    public User findUserById(Integer id) {
+    public User findUserById(int id) {
         return repository.findOne(id);
     }
 

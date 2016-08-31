@@ -1,9 +1,11 @@
 package com.chyld.controllers;
 
 import com.chyld.dtos.AuthDto;
+import com.chyld.entities.Profile;
 import com.chyld.entities.Role;
 import com.chyld.entities.User;
 import com.chyld.enums.RoleEnum;
+import com.chyld.security.JwtToken;
 import com.chyld.utilities.JwtUtil;
 import com.chyld.services.RoleService;
 import com.chyld.services.UserService;
@@ -17,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.ArrayList;
 
 @RestController
@@ -59,5 +62,28 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .body(null);
+    }
+
+    @RequestMapping(value = "/users/profile", method = RequestMethod.POST)
+    public ResponseEntity<?> createProfile(@RequestBody Profile profile, Principal principal) throws JsonProcessingException {
+        User user = userService.findUserById(((JwtToken) principal).getUserId());
+        profile.setUser(user);
+        user.setProfile(profile);
+        userService.saveUser(user);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .body(null);
+    }
+
+    @RequestMapping(value = "/users/profile", method = RequestMethod.GET)
+    public Profile getProfile(Principal principal) throws JsonProcessingException {
+        User user = userService.findUserById(((JwtToken) principal).getUserId());
+        return user.getProfile();
+    }
+
+    @RequestMapping(value = "/users/{userId}", method = RequestMethod.GET)
+    public User getUser(@PathVariable int userId) {
+        return userService.findUserById(userId);
     }
 }
